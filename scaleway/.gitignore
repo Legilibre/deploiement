@@ -1,0 +1,12 @@
+# Generic
+*.kate-swp
+*~
+\#*#
+.#*
+.*.swp
+.DS_Store
+Thumbs.db
+
+# Deployment
+/secrets.sh
+/ssh_key

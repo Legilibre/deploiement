@@ -17,7 +17,10 @@ mkdir -p $location/legilibre
 cd $location/legilibre
 
 # Create directories
-mkdir -p code tarballs sqlite textes cache
+mkdir -p code secrets tarballs sqlite textes cache
+
+[ -f /root/ssh_key ] && mv /root/ssh_key secrets
+[ -f /root/secrets.sh ] && mv /root/secrets.sh secrets
 
 # Copy code for legi.py and Archéo Lex
 cd code
@@ -33,9 +36,6 @@ pip install -r requirements.txt
 
 cd ../legi.py
 
-# Install cron
-# TBD
-
 # Download tarballs
 python -m legi.download ../../tarballs
 
@@ -49,8 +49,26 @@ cd ../Archeo-Lex
 
 # Launch Archéo Lex on 3000 random texts
 
-./archeo-lex --textes=aleatoire-3000 --bddlegi=../../sqlite/legi.sqlite --dossier=../../textes --cache=../../cache
+[ -x secrets/secrets.sh ] && . ./secrets/secrets.sh
 
+if [ "$GITLAB_HOST" = "" ]
+then
+	./archeo-lex --textes=aleatoire-3000 --bddlegi=../../sqlite/legi.sqlite --dossier=../../textes --cache=../../cache
+else
+	./archeo-lex --textes=aleatoire-3000 --bddlegi=../../sqlite/legi.sqlite --dossier=../../textes --cache=../../cache --gitlab-host=$GITLAB_HOST --gitlab-token=$GITLAB_TOKEN --gitlab-group=$GITLAB_GROUP --git-server=$GIT_SERVER --git-key=/root/legilibre/secrets/ssh_key
+fi
 
 # Tidy
 rm -f /root/deploy_legilibre.sh
+
+# Shut down and delete
+curl https://cp-$DATACENTER.scaleway.com/servers/IP/action \
+-H "X-Auth-Token: $TOKEN" \
+-H "Content-Type: application/json" \
+-d '{"action": "poweroff"}'
+
+# TODO loop until server is off, then delete
+curl https://cp-$DATACENTER.scaleway.com/servers/$IP \
+-H "X-Auth-Token: $TOKEN" \
+-H "Content-Type: application/json" \
+-X DELETE
