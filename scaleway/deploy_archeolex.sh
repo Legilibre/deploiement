@@ -53,9 +53,9 @@ cd ../Archeo-Lex
 
 if [ "$GITLAB_HOST" = "" ]
 then
-	./archeo-lex --textes=aleatoire-3000 --bddlegi=../../sqlite/legi.sqlite --dossier=../../textes --cache=../../cache
+	./archeo-lex --textes=aleatoire-3 --bddlegi=../../sqlite/legi.sqlite --dossier=../../textes --cache=../../cache
 else
-	./archeo-lex --textes=aleatoire-3000 --bddlegi=../../sqlite/legi.sqlite --dossier=../../textes --cache=../../cache --gitlab-host=$GITLAB_HOST --gitlab-token=$GITLAB_TOKEN --gitlab-group=$GITLAB_GROUP --git-server=$GIT_SERVER --git-key=/root/legilibre/secrets/ssh_key
+	./archeo-lex --textes=aleatoire-3 --bddlegi=../../sqlite/legi.sqlite --dossier=../../textes --cache=../../cache --gitlab-host=$GITLAB_HOST --gitlab-token=$GITLAB_TOKEN --gitlab-group=$GITLAB_GROUP --git-server=$GIT_SERVER --git-key=/root/legilibre/secrets/ssh_key
 fi
 
 # Tidy
