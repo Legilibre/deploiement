@@ -25,38 +25,61 @@ then
 fi
 
 # Create a Debian Stretch 9.0 server
-ID=`curl https://cp-$DATACENTER.scaleway.com/servers \
+echo -n '* Create a Debian Stretch 9.0 server… '
+ID=`curl -s https://cp-$DATACENTER.scaleway.com/servers \
 -H "X-Auth-Token: $TOKEN" \
 -H "Content-Type: application/json" \
--d '{ "name": "archeolex-worker", "image": "a869957c-6e1a-4b99-bc07-0748aa42c616", "commercial_type": "'$TYPE'", "tags": ["archeolex", "temporary"], "organization": "'$ORGANIZATION'" }'|jq -r .server.id`
+-d '{ "name": "archeolex-worker", "image": "a869957c-6e1a-4b99-bc07-0748aa42c616", "commercial_type": "'$TYPE'", "tags": ["archeolex", "temporary"], "organization": "'$ORGANIZATION'", "enable_ipv6": true }'|jq -r .server.id`
 
 if [ "$ID" = "null" ]
 then
 	exit 1
 fi
+echo 'done.'
 
-curl https://cp-$DATACENTER.scaleway.com/servers/$ID/action \
+echo -n '* Launch the server… '
+curl -s https://cp-$DATACENTER.scaleway.com/servers/$ID/action \
 -H "X-Auth-Token: $TOKEN" \
 -H "Content-Type: application/json" \
--d '{"action": "poweron"}'
+-d '{"action": "poweron"}' >/dev/null
+echo -n 'instructed… '
 
-wget https://raw.githubusercontent.com/Legilibre/deploiement/master/scaleway/deploy_archeolex.sh
+[ ! -f deploy_archeolex.sh ] && wget https://raw.githubusercontent.com/Legilibre/deploiement/master/scaleway/deploy_archeolex.sh
 
 IP='null'
-while [ "$IP" = "null" ]
+sleep 20
+while [ "$IP" = "null" -o "$STATE" != "running" ]
 do
-	IP=`curl https://cp-$DATACENTER.scaleway.com/servers/$ID \
+	result=`curl -s https://cp-$DATACENTER.scaleway.com/servers/$ID \
 	-H "X-Auth-Token: $TOKEN" \
-	-H "Content-Type: application/json"|jq -r .server.public_ip.address`
+	-H "Content-Type: application/json"`
+	IP=`echo "$result"|jq -r .server.public_ip.address`
+	STATE=`echo "$result"|jq -r .server.state`
+	sleep 5
 done
+echo 'done.'
+echo
+echo "ssh root@$IP"
+echo
 
 echo '#!/bin/sh
 chmod +x deploy_archeolex.sh
 nohup ./deploy_archeolex.sh &
 ' >launch_deploy_archeolex.sh
 
-scp -p launch_deploy_archeolex.sh root@$IP:.
-scp -p deploy_archeolex.sh root@$IP:.
-scp -p ssh_key root@$IP:.
+# Upload bootstrap files
+echo -n 'Upload bootstrap files… '
+ssh-keygen -R $IP >/dev/null 2>&1
 
-ssh root@$IP 'chmod +x launch_deploy_archeolex.sh; ./launch_deploy_archeolex.sh &'
+sleep 15
+
+scp -p -q -o 'StrictHostKeyChecking no' launch_deploy_archeolex.sh root@$IP:.
+scp -p -q deploy_archeolex.sh root@$IP:.
+scp -p -q secrets.sh root@$IP:.
+scp -p -q ssh_key root@$IP:.
+echo 'done.'
+
+echo -n 'Launch bootstrap file… '
+ssh root@$IP 'chmod +x launch_deploy_archeolex.sh; ./launch_deploy_archeolex.sh `</dev/null` >deploy_archeolex.log 2>deploy_archeolex.err &'
+rm launch_deploy_archeolex.sh
+echo 'done.'
