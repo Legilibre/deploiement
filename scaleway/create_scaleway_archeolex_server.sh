@@ -9,6 +9,7 @@ GITLAB_HOST="" # https://gitlab.example
 GITLAB_TOKEN="" # found in Gitlab > Settings > Access Tokens
 GITLAB_GROUP="" # group where are located the texts in Gitlab
 GIT_SERVER="" # gituser@gitlab.example
+GIT_PORT="" # port SSH, si différent de 22
 
 # Should contains the variables TOKEN and ORGANIZATION at least
 if [ -x secrets.sh ]
