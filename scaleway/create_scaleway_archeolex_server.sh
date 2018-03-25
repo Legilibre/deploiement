@@ -92,6 +92,6 @@ scp -p -q $GIT_PRIVATE_KEY root@$IP:ssh_key_git
 echo 'done.'
 
 echo -n 'Launch bootstrap file… '
-ssh root@$IP 'chmod +x launch_deploy_archeolex.sh; mkdir -p legilibre/logs ./launch_deploy_archeolex.sh `</dev/null` >legilibre/logs/deploy_archeolex.log 2>legilibre/logs/deploy_archeolex.err &'
+ssh root@$IP 'chmod +x launch_deploy_archeolex.sh; mkdir -p legilibre/logs; ./launch_deploy_archeolex.sh `</dev/null` >legilibre/logs/deploy_archeolex.log 2>legilibre/logs/deploy_archeolex.err &'
 rm launch_deploy_archeolex.sh
 echo 'done.'
