@@ -110,10 +110,4 @@ rm -f /root/deploy_legilibre.sh
 curl https://cp-$DATACENTER.scaleway.com/servers/$ID/action \
 -H "X-Auth-Token: $TOKEN" \
 -H "Content-Type: application/json" \
--d '{"action": "poweroff"}'
-
-# TODO loop until server is off, then delete
-#curl https://cp-$DATACENTER.scaleway.com/servers/$IP \
-#-H "X-Auth-Token: $TOKEN" \
-#-H "Content-Type: application/json" \
-#-X DELETE
+-d '{"action": "terminate"}'
