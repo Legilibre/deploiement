@@ -12,6 +12,8 @@ apt-get dist-upgrade -y
 apt-get install -y libarchive13 python-pip git htop sqlite3
 apt-get install -y python2.7-dev libxml2-dev libxslt1-dev python-setuptools python-wheel
 
+service exim4 stop
+
 # Create dedicated directory
 mkdir -p $location/legilibre
 cd $location/legilibre
