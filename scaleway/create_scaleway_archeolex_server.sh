@@ -8,8 +8,15 @@ TYPE="C2S" # commercial type
 GITLAB_HOST="" # https://gitlab.example
 GITLAB_TOKEN="" # found in Gitlab > Settings > Access Tokens
 GITLAB_GROUP="" # group where are located the texts in Gitlab
-GIT_SERVER="" # gituser@gitlab.example
-GIT_PORT="" # port SSH, si différent de 22
+GIT_SERVER="" # gituser@gitlab.example or ssh://gituser@gitlab.example:2222
+GIT_PRIVATE_KEY="" # file with private key for Git server
+LEGI_SERVER="" # cache LEGI server
+LEGI_PY_SERVER="" # perennial server where is stored the legi.py SQLite database
+LEGI_PRIVATE_KEY="" # SSH private key for cache LEGI server
+LEGI_PY_PRIVATE_KEY="" # SSH private key of the perennial server where is stored the legi.py SQLite database
+LIST_SERVER="" # server where is located the list of computed files
+LIST_PRIVATE_KEY="" # SSH private key of the server where is located the list of computed files
+TEXTES="" # list of texts or file containing a list of texts
 
 # Should contains the variables TOKEN and ORGANIZATION at least
 if [ -x secrets.sh ]
@@ -19,9 +26,9 @@ else
 	echo 'There should be a secrets.sh in this directory.'
 	exit 1
 fi
-if [ ! -f ssh_key ]
+if [ ! -f "$GIT_PRIVATE_KEY" ]
 then
-	echo 'There should be a ssh_key in this directory.'
+	echo 'There should be a Git SSH key.'
 	exit 1
 fi
 
@@ -77,7 +84,11 @@ sleep 15
 scp -p -q -o 'StrictHostKeyChecking no' launch_deploy_archeolex.sh root@$IP:.
 scp -p -q deploy_archeolex.sh root@$IP:.
 scp -p -q secrets.sh root@$IP:.
-scp -p -q ssh_key root@$IP:.
+scp -p -q $LEGI_PRIVATE_KEY root@$IP:ssh_key_legi
+scp -p -q $LEGI_PY_PRIVATE_KEY root@$IP:ssh_key_legi_py
+scp -p -q $LIST_PRIVATE_KEY root@$IP:ssh_key_list
+scp -p -q $GIT_PRIVATE_KEY root@$IP:ssh_key_git
+[ -f "$TEXTES" ] && scp -p -q $TEXTES root@$IP:textes
 echo 'done.'
 
 echo -n 'Launch bootstrap file… '
