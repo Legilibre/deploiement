@@ -105,7 +105,7 @@ fi
 
 # Shut down and delete
 . /root/legilibre/secrets/id.sh
-if [ "$KILL_ITSELF" != "false" [
+if [ "$KILL_ITSELF" != "false" ]
 then
 	curl https://cp-$DATACENTER.scaleway.com/servers/$ID/action \
 	-H "X-Auth-Token: $TOKEN" \
