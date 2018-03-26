@@ -103,11 +103,12 @@ then
 	rsync -az -e "ssh -i /root/legilibre/secrets/ssh_key_list" /root/legilibre/divers/calcules $LIST_SERVER/calcules
 fi
 
-# Tidy
-rm -f /root/deploy_legilibre.sh
-
 # Shut down and delete
-curl https://cp-$DATACENTER.scaleway.com/servers/$ID/action \
--H "X-Auth-Token: $TOKEN" \
--H "Content-Type: application/json" \
--d '{"action": "terminate"}'
+. /root/legilibre/secrets/id.sh
+if [ "$KILL_ITSELF" != "false" [
+then
+	curl https://cp-$DATACENTER.scaleway.com/servers/$ID/action \
+	-H "X-Auth-Token: $TOKEN" \
+	-H "Content-Type: application/json" \
+	-d '{"action": "terminate"}'
+fi

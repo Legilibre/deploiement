@@ -17,6 +17,7 @@ LEGI_PY_PRIVATE_KEY="" # SSH private key of the perennial server where is stored
 LIST_SERVER="" # server where is located the list of computed files
 LIST_PRIVATE_KEY="" # SSH private key of the server where is located the list of computed files
 TEXTES="" # list of texts or file containing a list of texts
+KILL_ITSELF="true" # the server does not kill itself if "false", it does for any other value
 
 # Should contains the variables TOKEN and ORGANIZATION at least
 if [ -x secrets.sh ]
@@ -70,10 +71,13 @@ echo
 echo "ssh root@$IP"
 echo
 
-echo '#!/bin/sh
+echo "#!/bin/sh
+mkdir -p legilibre/secrets
+echo \"ID=$ID\" > legilibre/secrets/id.sh
+chmod +x legilibre/secrets/id.sh
 chmod +x deploy_archeolex.sh
 nohup ./deploy_archeolex.sh &
-' >launch_deploy_archeolex.sh
+" >launch_deploy_archeolex.sh
 
 # Upload bootstrap files
 echo -n 'Upload bootstrap files… '
