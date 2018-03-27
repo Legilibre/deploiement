@@ -56,6 +56,8 @@ then
 	rsync -az -e "ssh -i /root/legilibre/secrets/ssh_key_legi" /root/legilibre/tarballs/ $LEGI_SERVER
 fi
 
+last_download=`ls *legi_*|sed 's/^.*legi_\(.*\)\.tar\.gz/legi_\1/'|sed 's/global_//'|sort|tail -n 1`
+
 
 ### legi.py
 
@@ -66,12 +68,22 @@ then
 	rsync -az -e "ssh -i /root/legilibre/secrets/ssh_key_legi_py -o 'StrictHostKeyChecking no'" $LEGI_PY_SERVER/legi.sqlite /root/legilibre/sql/legi.sqlite
 fi
 
-# Compute database
-python -m legi.tar2sqlite ../../sqlite/legi.sqlite ../../tarballs
-
-if [ "$LEGI_PY_SERVER" != "" -a -f /root/legilibre/secrets/ssh_key_legi_py ]
+last_update=""
+if [ -f /root/legilibre/sql/legi.sqlite ]
 then
-	rsync -az -e "ssh -i /root/legilibre/secrets/ssh_key_legi_py" /root/legilibre/sql/legi.sqlite $LEGI_PY_SERVER/legi.sqlite
+	last_update=`sqlite3 /root/legilibre/sql/legi.sqlite "SELECT value FROM db_meta WHERE key = 'last_update';"`
+fi
+
+if [ "legi_$last_update" \< "$last_download" ]
+then
+	
+	# Compute database
+	python -m legi.tar2sqlite ../../sqlite/legi.sqlite ../../tarballs
+
+	if [ "$LEGI_PY_SERVER" != "" -a -f /root/legilibre/secrets/ssh_key_legi_py ]
+	then
+		rsync -az -e "ssh -i /root/legilibre/secrets/ssh_key_legi_py" /root/legilibre/sql/legi.sqlite $LEGI_PY_SERVER/legi.sqlite
+	fi
 fi
 
 
