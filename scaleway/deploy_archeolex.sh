@@ -65,13 +65,13 @@ cd ../code/legi.py
 
 if [ "$LEGI_PY_SERVER" != "" -a -f /root/legilibre/secrets/ssh_key_legi_py ]
 then
-	rsync -az -e "ssh -i /root/legilibre/secrets/ssh_key_legi_py -o 'StrictHostKeyChecking no'" $LEGI_PY_SERVER/legi.sqlite /root/legilibre/sql/legi.sqlite
+	rsync -az -e "ssh -i /root/legilibre/secrets/ssh_key_legi_py -o 'StrictHostKeyChecking no'" $LEGI_PY_SERVER/legi.sqlite /root/legilibre/sqlite/legi.sqlite
 fi
 
 last_update=""
-if [ -f /root/legilibre/sql/legi.sqlite ]
+if [ -f /root/legilibre/sqlite/legi.sqlite ]
 then
-	last_update=`sqlite3 /root/legilibre/sql/legi.sqlite "SELECT value FROM db_meta WHERE key = 'last_update';"`
+	last_update=`sqlite3 /root/legilibre/sqlite/legi.sqlite "SELECT value FROM db_meta WHERE key = 'last_update';"`
 fi
 
 if [ "legi_$last_update" \< "$last_download" ]
@@ -82,7 +82,7 @@ then
 
 	if [ "$LEGI_PY_SERVER" != "" -a -f /root/legilibre/secrets/ssh_key_legi_py ]
 	then
-		rsync -az -e "ssh -i /root/legilibre/secrets/ssh_key_legi_py" /root/legilibre/sql/legi.sqlite $LEGI_PY_SERVER/legi.sqlite
+		rsync -az -e "ssh -i /root/legilibre/secrets/ssh_key_legi_py" /root/legilibre/sqlite/legi.sqlite $LEGI_PY_SERVER/legi.sqlite
 	fi
 fi
 
